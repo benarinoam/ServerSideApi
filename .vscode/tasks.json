@@ -1,0 +1,119 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "strat-angular",
+      "command": "ng serve --proxy-config proxy.conf.json",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/ClientApp"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "Compiled successfully|Local:|Listening on"
+        }
+      }
+    },
+    {
+      "label": "build-backend",
+      "command": "dotnet",
+      "args": ["build"],
+      "options": {
+        "cwd": "${workspaceFolder}/WebApiRestful"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Docker: Start All Services",
+      "type": "shell", // Use "shell" type to run commands in the terminal
+      "command": "docker compose up --build",
+      "presentation": {
+          "reveal": "always", // Shows the terminal when run
+          "panel": "shared"
+      },
+      "group": {
+          "kind": "build",
+          "isDefault": true // Makes this the default build task (run with Ctrl+Shift+B)
+      }
+    },
+    {
+        "label": "Docker: Stop All Services",
+        "type": "shell",
+        "command": "docker compose down",
+        "presentation": {
+            "reveal": "always"
+        }
+    },
+    {
+      "label": "Docker: View Logs",
+      "type": "shell",
+      "command": "docker compose logs -f",
+      "presentation": {
+          "reveal": "always"
+      }
+    },
+    {
+      "label": "Docker: View API Logs",
+      "type": "shell",
+      "command": "docker compose logs -f webapi",
+      "presentation": {
+          "reveal": "always"
+      }
+    },
+    {
+      "label": "Docker: View DB Logs",
+      "type": "shell",
+      "command": "docker compose logs -f db",
+      "presentation": {
+          "reveal": "always"
+      }
+    },
+    {
+      "label": "Docker: Build Images",
+      "type": "shell",
+      "command": "docker compose build",
+      "presentation": {
+          "reveal": "always"
+      }
+    },
+    {
+      "label": "Docker: Build and Push Angular Client (Multi-Arch)",
+      "type": "shell",
+      "command": "docker buildx build -f Dockerfile --platform linux/amd64,linux/arm64/v8 -t benarinoam/angular-client:latest --push .",
+      "problemMatcher": [], // No problem matcher needed for docker build output
+      "presentation": {
+          "reveal": "always",
+          "panel": "shared",
+          "focus": true // Focuses the terminal when you run this task
+      },
+      "group": "build", // Classifies this as a build command
+      "options": {
+          "cwd": "${workspaceFolder}/ClientApp" // Runs the command from the root of your project
+      }
+    },
+    {
+      "label": "Docker: Build and Push WebAPI Server (Multi-Arch)",
+      "type": "shell",
+      "command": "docker buildx build -f Dockerfile --platform linux/amd64,linux/arm64/v8 -t benarinoam/webapicore-server:latest --push .",
+      "problemMatcher": [],
+      "presentation": {
+          "reveal": "always",
+          "panel": "shared",
+          "focus": true
+      },
+      "group": "build",
+      "options": {
+          "cwd": "${workspaceFolder}/WebApiRestful"
+      }
+    }
+  ]
+}

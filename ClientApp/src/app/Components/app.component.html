@@ -1,0 +1,22 @@
+<!-- src/app/app.component.html -->
+
+<h1>Weather Forecasts</h1>
+
+<!-- Use ngIf with the async pipe and "as" syntax -->
+<ng-container *ngIf="forecasts$ | async as forecasts">
+    <!-- If data is here, this block renders -->
+    <table *ngIf="forecasts.length > 0">
+        <!-- ... thead ... -->
+        <tbody>
+            <tr *ngFor="let forecast of forecasts">
+                <td>{{ forecast.update_date }}</td>
+                <td>{{ forecast.temperature }}</td>
+                <td>{{ forecast.city_name }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p *ngIf="forecasts.length === 0">No data found.</p>
+</ng-container>
+
+<!-- This assumes the observable hasn't resolved yet -->
+<p *ngIf="!(forecasts$ | async)"><em>Loading...</em></p>

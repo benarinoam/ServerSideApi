@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Service for the Angular Client
+  client:
+    image: benarinoam/angular-client:latest
+    container_name: angular_client
+    restart: unless-stopped
+    ports:
+      # Maps your NAS port 80 to the container's exposed port 80 (NGINX)
+      - "80:80"
+    networks:
+      - angular-net
+  webapi:
+    image: benarinoam/webapicore-server:latest
+    container_name: webapicore-server
+    ports:
+      - "8081:5000"
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000 
+      - "ConnectionStrings__PostgreSQLConnection=Host=db;Port=5432;Database=weatherdb;Username=postgres;Password=Nba123"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - angular-net   
+  db:
+    image: postgres:16.11-alpine
+    restart: always
+    # set shared memory limit when using docker compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128MB
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: Nba123
+      POSTGRES_USER: postgres
+      POSTGRES_DB: weatherdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Persists your database data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - angular-net  
+
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8082:8080
+    networks:
+      - angular-net  
+
+networks:
+  angular-net:
+    driver: bridge
+
+volumes:
+  pgdata:
